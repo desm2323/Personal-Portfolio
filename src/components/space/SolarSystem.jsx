@@ -38,7 +38,7 @@ const getGlow = () => {
     return glowTex;
 };
 
-const Planet = ({ material, position, radius, destination, onOpen }) => {
+const Planet = ({ material, position, radius, segments = 48, destination, onOpen }) => {
     const ref = useRef();
     const hoverRef = useRef(false);
     const [hovered, setHovered] = useState(false);
@@ -77,7 +77,7 @@ const Planet = ({ material, position, radius, destination, onOpen }) => {
                 onPointerOver={interactive ? over : undefined}
                 onPointerOut={interactive ? out : undefined}
             >
-                <sphereGeometry args={[radius, 48, 48]} />
+                <sphereGeometry args={[radius, segments, segments]} />
             </mesh>
             {destination && (
                 <Html position={[0, radius * 1.45, 0]} center distanceFactor={11} zIndexRange={[30, 0]}>
@@ -91,18 +91,21 @@ const Planet = ({ material, position, radius, destination, onOpen }) => {
     );
 };
 
-const SolarSystem = ({ sunPosition = [4, 0.5, 22], sunRadius = 1.9, destinations = {}, onOpen }) => {
+const SolarSystem = ({ sunPosition = [4, 0.5, 22], sunRadius = 1.9, destinations = {}, onOpen, quality = 'high' }) => {
     const { materials } = useGLTF('/models/solar_system.glb');
     const sunMat = useMemo(
         () => new MeshBasicMaterial({ map: materials[SUN_MAT].map, toneMapped: false }),
         [materials]
     );
+    // Low-power profile: lighter tessellation (invisible at these sizes).
+    const planetSegments = quality === 'low' ? 24 : 48;
+    const sunSegments = quality === 'low' ? 32 : 48;
 
     return (
         <group>
             <group position={sunPosition}>
                 <mesh material={sunMat}>
-                    <sphereGeometry args={[sunRadius, 48, 48]} />
+                    <sphereGeometry args={[sunRadius, sunSegments, sunSegments]} />
                 </mesh>
                 <sprite scale={sunRadius * 4.5}>
                     <spriteMaterial
@@ -123,6 +126,7 @@ const SolarSystem = ({ sunPosition = [4, 0.5, 22], sunRadius = 1.9, destinations
                     material={materials[p.mat]}
                     position={p.position}
                     radius={p.radius}
+                    segments={planetSegments}
                     destination={destinations[p.key]}
                     onOpen={onOpen}
                 />

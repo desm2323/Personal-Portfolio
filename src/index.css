@@ -51,6 +51,88 @@ a {
   overflow: hidden;
 }
 
+/* Low-power mode (software rendering / weak GPU): backdrop blur is very
+   CPU-expensive without compositor acceleration, so trade it for slightly
+   more opaque surfaces. */
+.low-power .dest-panel,
+.low-power .star-chart,
+.low-power .planet-label {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.low-power .dest-panel {
+  background:
+    radial-gradient(120% 140% at 80% -10%, rgb(var(--dest-accent) / 0.12), rgba(8, 12, 30, 0) 55%),
+    rgba(8, 11, 26, 0.97);
+}
+.low-power .star-chart {
+  background: rgba(8, 11, 26, 0.92);
+}
+.low-power .planet-label {
+  background: rgba(8, 11, 26, 0.85);
+}
+.low-power .proj-thumb-backdrop {
+  display: none; /* skip the blurred fill — the gradient thumb shows instead */
+}
+
+/* Shown only while low-power mode is active; dismissible, auto-hides */
+.perf-notice {
+  position: fixed;
+  top: 1.25rem;
+  left: 1.25rem;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: min(24rem, calc(100vw - 2rem));
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.8rem;
+  background: rgba(8, 11, 26, 0.92);
+  border: 1px solid rgb(var(--accent) / 0.3);
+  color: var(--text-body);
+  font-size: 0.72rem;
+  line-height: 1.45;
+  animation: noticeIn 0.5s ease both;
+}
+.perf-notice-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: rgb(var(--accent) / 0.9);
+}
+.perf-notice-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: transparent;
+  border: 0;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.perf-notice-close svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+.perf-notice-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+@keyframes noticeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Loading veil: opaque while assets stream in, then fades to reveal the
    fly-in. pointer-events none throughout so it can never trap input. */
 .entry-veil {
@@ -1230,6 +1312,7 @@ a {
   .space-hint-icon,
   .stage-caption-dot,
   .chart-marker::after,
+  .perf-notice,
   .dest-panel[data-open="true"]::after {
     animation: none;
   }

@@ -147,6 +147,14 @@ export const ExternalLink = (props) => (
     </Icon>
 );
 
+export const Info = (props) => (
+    <Icon {...props}>
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 16v-4" />
+        <path d="M12 8h.01" />
+    </Icon>
+);
+
 export const GraduationCap = (props) => (
     <Icon {...props}>
         <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" />

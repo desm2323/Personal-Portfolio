@@ -161,6 +161,33 @@ const GALAXY_TILES = [
     { position: [5, -2, -104], rotation: [0, 5.2, 0] },
 ];
 
+/* Render profiles: 'high' is the full experience; 'low' keeps software
+   rasterizers and weak GPUs usable — fewer points, lighter geometry, reduced
+   resolution, no antialiasing. */
+const PROFILES = {
+    high: { dpr: 1, stars: 8000, tiles: GALAXY_TILES, antialias: true, quality: 'high' },
+    low: { dpr: 0.65, stars: 2400, tiles: GALAXY_TILES.slice(0, 1), antialias: false, quality: 'low' },
+};
+
+/* Watches the real frame rate for a few seconds once the scene is live; if
+   the machine can't hold a reasonable rate, asks the app to drop to the
+   low-power profile. One-shot. */
+const PerfGuard = ({ ready, enabled, onDegrade }) => {
+    const acc = useRef({ time: 0, frames: 0, done: false });
+    useFrame((_, dt) => {
+        const a = acc.current;
+        if (!ready || !enabled || a.done) return;
+        if (dt > 0.5) return; // ignore tab-switch gaps
+        a.time += dt;
+        a.frames += 1;
+        if (a.time >= 5) {
+            a.done = true;
+            if (a.frames / a.time < 26 && onDegrade) onDegrade();
+        }
+    });
+    return null;
+};
+
 /* 3D intro text floating in space — the camera flies past it as you scroll,
    so it drifts and recedes like any other object rather than just fading. */
 const IntroText = () => {
@@ -337,37 +364,41 @@ const ScrollCamera = ({ progress, ready, warpRef }) => {
     return null;
 };
 
-const SpaceScene = ({ destinations, onOpen, progress, ready, warpRef }) => (
-    <Canvas
-        className="space-canvas"
-        dpr={1}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
-        camera={{ position: [0, 0, 34], fov: 55 }}
-    >
-        <color attach="background" args={['#04050d']} />
-        <ambientLight intensity={0.6} />
-        {/* Sunlight from the +Z (sun) end of the row toward the planets. */}
-        <directionalLight position={[0, 4, 26]} intensity={1.4} color="#ffe6c0" />
+const SpaceScene = ({ destinations, onOpen, progress, ready, warpRef, perfMode = 'high', onDegrade }) => {
+    const profile = PROFILES[perfMode] ?? PROFILES.high;
+    return (
+        <Canvas
+            className="space-canvas"
+            dpr={profile.dpr}
+            gl={{ antialias: profile.antialias, powerPreference: 'high-performance' }}
+            camera={{ position: [0, 0, 34], fov: 55 }}
+        >
+            <color attach="background" args={['#04050d']} />
+            <ambientLight intensity={0.6} />
+            {/* Sunlight from the +Z (sun) end of the row toward the planets. */}
+            <directionalLight position={[0, 4, 26]} intensity={1.4} color="#ffe6c0" />
 
-        {/* Base layer: recycling field that always surrounds the camera, so star
-            density is consistent from the first frame to the last. */}
-        <AmbientStars count={8000} radius={70} depth={170} />
+            {/* Base layer: recycling field that always surrounds the camera, so star
+                density is consistent from the first frame to the last. */}
+            <AmbientStars count={profile.stars} radius={70} depth={170} />
 
-        {/* Rich layer: the galaxy model tiled along the route. */}
-        <Suspense fallback={null}>
-            {GALAXY_TILES.map((t, i) => (
-                <SpaceCloud key={i} position={t.position} rotation={t.rotation} />
-            ))}
-        </Suspense>
+            {/* Rich layer: the galaxy model tiled along the route. */}
+            <Suspense fallback={null}>
+                {profile.tiles.map((t, i) => (
+                    <SpaceCloud key={i} position={t.position} rotation={t.rotation} />
+                ))}
+            </Suspense>
 
-        <IntroText />
+            <IntroText />
 
-        <Suspense fallback={null}>
-            <SolarSystem destinations={destinations} onOpen={onOpen} />
-        </Suspense>
+            <Suspense fallback={null}>
+                <SolarSystem destinations={destinations} onOpen={onOpen} quality={profile.quality} />
+            </Suspense>
 
-        <ScrollCamera progress={progress} ready={ready} warpRef={warpRef} />
-    </Canvas>
-);
+            <ScrollCamera progress={progress} ready={ready} warpRef={warpRef} />
+            <PerfGuard ready={ready} enabled={perfMode === 'high'} onDegrade={onDegrade} />
+        </Canvas>
+    );
+};
 
 export default SpaceScene;

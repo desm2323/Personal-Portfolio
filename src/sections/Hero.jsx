@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion as Motion, useMotionValue, useTransform, useReducedMotion } from 'motion/react';
 import { useProgress } from '@react-three/drei';
 import SpaceScene, { STAGE_CENTERS } from '../components/space/SpaceScene.jsx';
+import { detectSoftwareGL } from '../components/space/perf.js';
 import StarChart from '../components/StarChart.jsx';
 import FallbackHero from '../components/FallbackHero.jsx';
-import { ChevronsDown } from '../components/icons/Icons.jsx';
+import { ChevronsDown, Info, X } from '../components/icons/Icons.jsx';
 import AboutDestination from '../components/destinations/AboutDestination.jsx';
 import TechStackDestination from '../components/destinations/TechStackDestination.jsx';
 import ProjectsDestination from '../components/destinations/ProjectsDestination.jsx';
@@ -119,6 +120,17 @@ const Hero = () => {
     const [openId, setOpenId] = useState(null);
     const [sceneReady, setSceneReady] = useState(false);
     const [webglOk] = useState(supportsWebGL);
+    // Software rendering (hardware acceleration off) starts in low-power mode;
+    // the in-scene PerfGuard can also downgrade weak GPUs at runtime.
+    const [perfMode, setPerfMode] = useState(() => (detectSoftwareGL() ? 'low' : 'high'));
+    const [noticeDismissed, setNoticeDismissed] = useState(false);
+
+    // The low-power notice quietly removes itself after a while.
+    useEffect(() => {
+        if (perfMode !== 'low' || noticeDismissed) return undefined;
+        const t = setTimeout(() => setNoticeDismissed(true), 15000);
+        return () => clearTimeout(t);
+    }, [perfMode, noticeDismissed]);
     const openRef = useRef(false);
     const readyRef = useRef(false);
     const navRef = useRef(null); // autopilot target set by the star chart
@@ -137,6 +149,8 @@ const Hero = () => {
         setOpenId(null); // close any open panel before flying
         navRef.current = center;
     }, []);
+
+    const degrade = useCallback(() => setPerfMode('low'), []);
 
     useEffect(() => {
         if (!webglOk) return undefined;
@@ -284,7 +298,7 @@ const Hero = () => {
     if (!webglOk) return <FallbackHero />;
 
     return (
-        <div className="journey-fixed">
+        <div className={`journey-fixed${perfMode === 'low' ? ' low-power' : ''}`}>
             <LoadingVeil done={sceneReady} onDone={markReady} />
 
             <SpaceScene
@@ -293,6 +307,8 @@ const Hero = () => {
                 progress={progress}
                 ready={sceneReady}
                 warpRef={warpRef}
+                perfMode={perfMode}
+                onDegrade={degrade}
             />
 
             <Motion.div className="space-hint" style={{ opacity: introOpacity }}>
@@ -330,6 +346,24 @@ const Hero = () => {
                 </a>
                 <span>· CC-BY-4.0</span>
             </footer>
+
+            {sceneReady && perfMode === 'low' && !noticeDismissed && (
+                <div className="perf-notice" role="status">
+                    <Info className="perf-notice-icon" />
+                    <span>
+                        Running in low-power mode — enable your browser&apos;s hardware
+                        acceleration for the sharpest experience.
+                    </span>
+                    <button
+                        type="button"
+                        className="perf-notice-close"
+                        onClick={() => setNoticeDismissed(true)}
+                        aria-label="Dismiss notice"
+                    >
+                        <X />
+                    </button>
+                </div>
+            )}
 
             {sceneReady && (
                 <StarChart
