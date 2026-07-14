@@ -1,5 +1,6 @@
 import DestinationShell, { Reveal } from './DestinationShell.jsx';
 import { Mail, Linkedin, Github, Send, FileText, ArrowUpRight } from '../icons/Icons.jsx';
+import { asset } from '../../asset.js';
 
 const CHANNELS = [
     {
@@ -71,7 +72,7 @@ const ContactDestination = ({ open, onClose }) => (
                 <Send />
                 Email me
             </a>
-            <a className="dest-btn dest-btn--ghost" href="/Desmond_Li_CV.pdf" download>
+            <a className="dest-btn dest-btn--ghost" href={asset('Desmond_Li_CV.pdf')} download>
                 <FileText />
                 Download CV
             </a>

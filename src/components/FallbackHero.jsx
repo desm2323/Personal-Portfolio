@@ -1,4 +1,5 @@
 import { Mail, Linkedin, Github, FileText } from './icons/Icons.jsx';
+import { asset } from '../asset.js';
 
 /* Static fallback for browsers/devices without WebGL — the journey can't
    render, so serve the essentials: who, what, and how to get in touch. */
@@ -22,7 +23,7 @@ const FallbackHero = () => (
                     <Mail />
                     Email me
                 </a>
-                <a className="dest-btn dest-btn--ghost" href="/Desmond_Li_CV.pdf" download>
+                <a className="dest-btn dest-btn--ghost" href={asset('Desmond_Li_CV.pdf')} download>
                     <FileText />
                     Download CV
                 </a>

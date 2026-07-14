@@ -1,5 +1,6 @@
 import DestinationShell, { Reveal } from './DestinationShell.jsx';
 import { ExternalLink, Github } from '../icons/Icons.jsx';
+import { asset } from '../../asset.js';
 
 // live/source are optional — a button only renders when its link exists.
 // image is optional too; if the file is missing the gradient thumb shows.
@@ -36,7 +37,7 @@ const PROJECTS = [
         tagline: 'Interactive 3D Portfolio · Ongoing',
         desc: 'My personal portfolio — an interactive 3D website built with React and React Three Fiber, with smooth scroll-driven navigation, custom animations, and a hand-built design system, all tuned to stay fast on a strict performance budget. Designed and developed from scratch.',
         tags: ['React', 'React Three Fiber', 'Vite', 'Tailwind CSS'],
-        source: 'https://github.com/desm2323/Personal-website',
+        source: 'https://github.com/desm2323/Personal-Portfolio',
         image: '/projects/personal-website.webp',
     },
 ];
@@ -62,7 +63,7 @@ const ProjectsDestination = ({ open, onClose }) => (
                                         part of the shot, not empty space. */}
                                     <img
                                         className="proj-thumb-backdrop"
-                                        src={project.image}
+                                        src={asset(project.image)}
                                         alt=""
                                         loading="lazy"
                                         onError={(e) => {
@@ -71,7 +72,7 @@ const ProjectsDestination = ({ open, onClose }) => (
                                     />
                                     <img
                                         className="proj-thumb-img"
-                                        src={project.image}
+                                        src={asset(project.image)}
                                         alt=""
                                         loading="lazy"
                                         onError={(e) => {

@@ -3,6 +3,9 @@ import { useGLTF, Html } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { AdditiveBlending, CanvasTexture, MeshBasicMaterial } from 'three';
 import { ArrowUpRight } from '../icons/Icons.jsx';
+import { asset } from '../../asset.js';
+
+const SOLAR_GLB = asset('models/solar_system.glb');
 
 /* Planet/sun textures come from "Solar System Paint 3D" by Pumpkin
    (https://sketchfab.com/3d-models/solar-system-paint-3d-fd0cb20fd0794d3886cbbc8cc86ff6c9),
@@ -92,7 +95,7 @@ const Planet = ({ material, position, radius, segments = 48, destination, onOpen
 };
 
 const SolarSystem = ({ sunPosition = [4, 0.5, 22], sunRadius = 1.9, destinations = {}, onOpen, quality = 'high' }) => {
-    const { materials } = useGLTF('/models/solar_system.glb');
+    const { materials } = useGLTF(SOLAR_GLB);
     const sunMat = useMemo(
         () => new MeshBasicMaterial({ map: materials[SUN_MAT].map, toneMapped: false }),
         [materials]
@@ -135,6 +138,6 @@ const SolarSystem = ({ sunPosition = [4, 0.5, 22], sunRadius = 1.9, destinations
     );
 };
 
-useGLTF.preload('/models/solar_system.glb');
+useGLTF.preload(SOLAR_GLB);
 
 export default SolarSystem;

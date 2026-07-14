@@ -4,7 +4,7 @@ My personal portfolio, built as an interactive 3D journey through a solar system
 
 ![Portfolio hero](public/projects/personal-website.webp)
 
-> **Live site:** coming soon
+> **Live site:** [desm2323.github.io/Personal-Portfolio](https://desm2323.github.io/Personal-Portfolio/)
 >
 > 💡 Best viewed with your browser's hardware acceleration enabled (on by default). Without it, the site automatically switches to a low-power mode — still fully functional, just softer visuals.
 

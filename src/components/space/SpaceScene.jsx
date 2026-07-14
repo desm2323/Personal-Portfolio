@@ -12,6 +12,7 @@ import {
 } from 'three';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 import SolarSystem, { PLANETS } from './SolarSystem.jsx';
+import { asset } from '../../asset.js';
 
 // Where each stage sits along the 0..1 journey. Shared with Hero's captions so
 // the camera dwell and the caption fade always line up.
@@ -110,7 +111,7 @@ const AmbientStars = ({ count = 13000, radius = 75, depth = 190, flatten = 0.4 }
    (https://sketchfab.com/3d-models/need-some-space-d6521362b37b48e3a82bce4911409303),
    licensed CC-BY-4.0 — see license.txt. */
 const SpaceCloud = ({ targetRadius = 60, position, rotation }) => {
-    const raw = useLoader(PLYLoader, '/models/model.ply');
+    const raw = useLoader(PLYLoader, asset('models/model.ply'));
     const geometry = useMemo(() => {
         const g = raw.clone();
         g.center();
